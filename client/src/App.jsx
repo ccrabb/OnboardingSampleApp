@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import TenantSetup from './TenantSetup';
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard' },
@@ -14,7 +15,10 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Refetch every time the Dashboard tab is opened so progress made on other tabs shows up
   useEffect(() => {
+    if (activeTab !== 'dashboard') return;
+    let ignore = false;
     fetch('/api/onboarding')
       .then(async (res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -23,17 +27,20 @@ function App() {
         return data;
       })
       .then(data => {
+        if (ignore) return;
         setOnboardingData(data);
         setError(null);
         setLoading(false);
       })
       .catch(err => {
+        if (ignore) return;
         console.error('Failed to fetch onboarding data:', err);
         setError(err.message);
         setOnboardingData([]);
         setLoading(false);
       });
-  }, []);
+    return () => { ignore = true; };
+  }, [activeTab]);
 
   return (
     <div className="app">
@@ -64,9 +71,7 @@ function App() {
         {activeTab === 'data-mapping' && (
           <PlaceholderTab title="Data Mapping" description="Map customer data to platform configuration" />
         )}
-        {activeTab === 'tenant-setup' && (
-          <PlaceholderTab title="Tenant Setup" description="Provision and configure customer tenant" />
-        )}
+        {activeTab === 'tenant-setup' && <TenantSetup />}
         {activeTab === 'import' && (
           <PlaceholderTab title="Import" description="Import customer data into the platform" />
         )}

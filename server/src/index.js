@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const store = require('./data/store');
+const { provisionTenant, cancelPendingProvisioning } = require('./services/provisioning');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -56,6 +57,11 @@ app.get('/api/onboarding', (req, res) => {
   res.json(dashboard);
 });
 
+// Get all tenants
+app.get('/api/tenants', (req, res) => {
+  res.json(store.getTenants());
+});
+
 // Get tenant by customer ID
 app.get('/api/tenants/:customerId', (req, res) => {
   const tenant = store.getTenantByCustomerId(req.params.customerId);
@@ -65,8 +71,35 @@ app.get('/api/tenants/:customerId', (req, res) => {
   res.json(tenant);
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Onboarding API server running at http://localhost:${PORT}`);
-  console.log(`   Health check: http://localhost:${PORT}/api/health`);
+// Start provisioning a tenant (completes asynchronously)
+app.post('/api/tenants/:customerId/provision', (req, res) => {
+  const result = provisionTenant(req.params.customerId, req.body);
+  if (result.ok) {
+    return res.status(202).json(result.tenant);
+  }
+  switch (result.reason) {
+    case 'not_found':
+      return res.status(404).json({ error: 'Customer not found' });
+    case 'conflict':
+      return res.status(409).json({ error: result.error });
+    default:
+      return res.status(400).json({ errors: result.errors });
+  }
 });
+
+// Restore seed data and cancel pending provisioning (used by e2e tests)
+app.post('/api/__reset', (req, res) => {
+  cancelPendingProvisioning();
+  store.reset();
+  res.status(204).end();
+});
+
+// Start server when run directly (tests import the app and listen on their own port)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Onboarding API server running at http://localhost:${PORT}`);
+    console.log(`   Health check: http://localhost:${PORT}/api/health`);
+  });
+}
+
+module.exports = app;
