@@ -169,3 +169,95 @@ header p {
   color: #6b7280;
   font-size: 0.9rem;
 }
+
+.step-status.failed {
+  background: #dc2626;
+  color: white;
+}
+
+.tenant-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.tenant-status {
+  width: auto;
+  padding: 0 12px;
+  border-radius: 9999px;
+}
+
+.customer-picker {
+  max-width: 360px;
+  margin-bottom: 20px;
+}
+
+.tenant-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.form-field input,
+.form-field select {
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: white;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: -1px;
+}
+
+.field-error,
+.form-error {
+  color: #dc2626;
+  font-size: 0.85rem;
+}
+
+.form-error {
+  margin-bottom: 12px;
+}
+
+.form-actions {
+  grid-column: 1 / -1;
+}
+
+.button-primary {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  background: #2563eb;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.button-primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.button-primary:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
