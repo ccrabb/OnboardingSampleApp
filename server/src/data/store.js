@@ -43,6 +43,43 @@ function seedData() {
   store.customers.push(exampleCustomer);
   store.tenants.push(exampleTenant);
   store.onboardingStates.push(exampleOnboardingState);
+
+  // Sample-data customers (see /sample-data) - not yet provisioned, so no tenant
+  const sampleCustomers = [
+    {
+      id: 'cust_002',
+      name: 'ABC Accounting',
+      industry: 'Accounting',
+      region: 'North America',
+      contactEmail: 'onboarding@abcaccounting.example.com',
+      createdAt: '2025-02-03T09:00:00Z'
+    },
+    {
+      id: 'cust_003',
+      name: 'XYZ Financial Services',
+      industry: 'Financial Services',
+      region: 'North America',
+      contactEmail: 'onboarding@xyzfinancial.example.com',
+      createdAt: '2025-02-10T14:30:00Z'
+    },
+    {
+      id: 'cust_004',
+      name: 'Premier Bookkeeping',
+      industry: 'Bookkeeping',
+      region: 'United Kingdom',
+      contactEmail: 'onboarding@premierbookkeeping.example.co.uk',
+      createdAt: '2025-02-17T11:15:00Z'
+    }
+  ];
+
+  sampleCustomers.forEach(data => {
+    store.customers.push(createCustomer(data));
+    store.onboardingStates.push({
+      customerId: data.id,
+      steps: createDefaultOnboardingSteps(),
+      progressPercent: 0
+    });
+  });
 }
 
 // Initialize with seed data
@@ -75,6 +112,15 @@ function addTenant(tenant) {
   return tenant;
 }
 
+function updateTenant(customerId, updates) {
+  const index = store.tenants.findIndex(t => t.customerId === customerId);
+  if (index !== -1) {
+    store.tenants[index] = { ...store.tenants[index], ...updates };
+    return store.tenants[index];
+  }
+  return null;
+}
+
 function getOnboardingState(customerId) {
   return store.onboardingStates.find(s => s.customerId === customerId);
 }
@@ -97,6 +143,14 @@ function updateOnboardingState(customerId, updates) {
   return null;
 }
 
+// Clears all data and restores the seed (used by tests via POST /api/__reset)
+function reset() {
+  store.customers = [];
+  store.tenants = [];
+  store.onboardingStates = [];
+  seedData();
+}
+
 module.exports = {
   getCustomers,
   getCustomerById,
@@ -104,8 +158,10 @@ module.exports = {
   getTenants,
   getTenantByCustomerId,
   addTenant,
+  updateTenant,
   getOnboardingState,
   getAllOnboardingStates,
   addOnboardingState,
-  updateOnboardingState
+  updateOnboardingState,
+  reset
 };
